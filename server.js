@@ -4,8 +4,9 @@ const authRoutes = require("./routes/route");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger/swagger.json");
 require("dotenv").config();
-const serverless = require("serverless-http");
+const path = require("path");
 const cors = require("cors");
+const { url } = require("inspector");
 const corsOptions = {
   origin: "*",
   method: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -21,7 +22,17 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api", authRoutes);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+app.use("/swagger", express.static(path.join(__dirname, "swagger")));
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(null, {
+    swaggerOptions: {
+      url: "/swagger/swagger.json",
+    },
+  })
+);
 
 // app.get("/api", (req, res) => {
 //   res.json({ name: ["Rio", "Ijat", "Idin"] });
