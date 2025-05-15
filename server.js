@@ -24,15 +24,7 @@ app.get("/", (req, res) => {
 app.use("/api", authRoutes);
 
 app.use("/swagger", express.static(path.join(__dirname, "swagger")));
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(null, {
-    swaggerOptions: {
-      url: "/swagger/swagger.json",
-    },
-  })
-);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // app.get("/api", (req, res) => {
 //   res.json({ name: ["Rio", "Ijat", "Idin"] });
