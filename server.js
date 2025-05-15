@@ -31,4 +31,4 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 //   console.log("Server started on port 8080");
 // });
 
-module.exports.handler = serverless(app);
+module.exports = app;
