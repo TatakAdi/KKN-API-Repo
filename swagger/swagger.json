@@ -11,7 +11,7 @@
       "description": "Local server"
     },
     {
-      "url": "https://kkn-api-repo.vercel.app/",
+      "url": "https://kkn-api-repo.vercel.app",
       "description": "Production API server"
     }
   ],
