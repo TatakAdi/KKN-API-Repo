@@ -29,7 +29,7 @@ app.use(
   swaggerUi.serve,
   swaggerUi.setup(null, {
     swaggerOptions: {
-      url: "./swagger/swagger.json",
+      url: "/swagger/swagger.json",
     },
   })
 );
