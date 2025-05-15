@@ -1,0 +1,94 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "My KKN API",
+    "version": "1.0.0",
+    "description": "Dokumentasi API KKN"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8080",
+      "description": "Local server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Autentikasi",
+      "description": "Autentikasi pengguna"
+    },
+    {
+      "name": "Produk",
+      "description": "Manajemen data Produk Kampung Toga"
+    },
+    {
+      "name": "Tanaman",
+      "description": "Manajemen data Tanaman Kampung Toga"
+    }
+  ],
+  "paths": {
+    "/api/login": {
+      "post": {
+        "tags": ["Autentikasi"],
+        "summary": "Melakukan login ke user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fullName": {
+                    "type": "string",
+                    "example": "KampungToga"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "password123"
+                  }
+                },
+                "required": ["fullName", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login Berhasil"
+          },
+          "401": {
+            "description": "Wrong username or password"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/me": {
+      "get": {
+        "tags": ["Autentikasi"],
+        "summary": "Mengambil data yang melakukan Login",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": { "description": "Data pengguna berhasil diambil" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
