@@ -4,7 +4,7 @@ const authRoutes = require("./routes/route");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger/swagger.json");
 require("dotenv").config();
-const severless = require("serverless-http");
+const serverless = require("serverless-http");
 const cors = require("cors");
 const corsOptions = {
   origin: "*",
@@ -27,8 +27,8 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 //   res.json({ name: ["Rio", "Ijat", "Idin"] });
 // });
 
-app.listen(8080, () => {
-  console.log("Server started on port 8080");
-});
+// app.listen(8080, () => {
+//   console.log("Server started on port 8080");
+// });
 
-module.exports.handler = severless(app);
+module.exports.handler = serverless(app);
