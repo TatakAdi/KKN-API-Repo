@@ -16,6 +16,10 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.send("Welcome to KampungToga API,");
+});
+
 app.use("/api", authRoutes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
