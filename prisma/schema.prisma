@@ -16,7 +16,9 @@ datasource db {
 
 model users {
   id Int @id @default(autoincrement())
+  auth_id String? @unique
   fullName String @unique
+  email String
   password String 
 }
 
@@ -28,6 +30,7 @@ model product {
   gambar String?
   linkShoppe String?
   linkTokopedia String?
+  user_id String?
   timeAdded DateTime
 }
 
@@ -36,6 +39,7 @@ model tanaman {
   namaTanaman String
   deskripsi String?
   gambar String?
+  user_id String?
   timeAdded DateTime
 }
 

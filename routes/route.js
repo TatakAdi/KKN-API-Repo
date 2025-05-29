@@ -20,7 +20,7 @@ router.get("/me", authMiddleware, getUserLogged);
 // Produk
 router.get("/product", getProduct);
 router.get(`/product/:id`, getProductById);
-router.post(`/product`, uploadMiddleware, postNewProduct);
+router.post(`/product`, authMiddleware, uploadMiddleware, postNewProduct);
 router.put("/product/:id", uploadMiddleware, updateProductData);
 router.delete("/product/:id", deleteProductData);
 

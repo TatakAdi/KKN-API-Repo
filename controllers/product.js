@@ -1,5 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const { createClient } = require("@supabase/supabase-js");
+const jwt = require("jsonwebtoken");
 
 const prisma = new PrismaClient();
 const supabase = createClient(process.env.SUPABASE_URL, process.env.API_KEY);
@@ -14,10 +15,11 @@ exports.getProduct = async (req, res) => {
 
     const formattedData = data.map((item) => ({
       ...item,
-      urlGambar: `${process.env.STORAGE_URL}/produk/${item.gambar}`,
+      urlGambar: `${process.env.STORAGE_URL}${item.gambar}`,
     }));
 
-    res.json({
+    res.status(200).json({
+      message: "Data produk berhasil diambil",
       data: formattedData,
     });
   } catch (error) {
@@ -38,13 +40,16 @@ exports.getProductById = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    res.json({
-      nama: data.namaProduk,
-      harga: data.harga,
-      deskripsi: data.deskripsi,
-      urlGambar: `${process.env.STORAGE_URL}/produk/${data.gambar}`,
-      shoppe: data.linkShoppe,
-      tokopedia: data.linkTokopedia,
+    res.status(200).json({
+      message: "Data satu produk berhasil diambil",
+      data: {
+        nama: data.namaProduk,
+        harga: data.harga,
+        deskripsi: data.deskripsi,
+        urlGambar: `${process.env.STORAGE_URL}${data.gambar}`,
+        shoppe: data.linkShoppe,
+        tokopedia: data.linkTokopedia,
+      },
     });
   } catch (error) {
     console.error("Internal server error, Error: ", error);
@@ -57,12 +62,18 @@ exports.postNewProduct = async (req, res) => {
     req.body;
   const file = req.file;
 
+  const userId = req.userId;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized - user ID missing" });
+  }
+
   if (!file) {
-    return res.status(400).json({ message: "No image uploaded" });
+    return res.status(400).json({ message: "No image uploaded" }); // Kalau gambar belum ada diupload pas penambahan produk
   }
   try {
     const fileName = `${Date.now()}-${file.originalname}`;
-    const filePath = `produk/${fileName}`;
+    const filePath = `/produk/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from("1mage.storage")
@@ -84,6 +95,7 @@ exports.postNewProduct = async (req, res) => {
         gambar: filePath,
         linkShoppe,
         linkTokopedia,
+        user_id: userId,
         timeAdded: new Date(),
       },
     });
@@ -94,13 +106,14 @@ exports.postNewProduct = async (req, res) => {
     });
   } catch (error) {
     console.error("Internal server error, Error: ", error);
-    res.status(500).json({ message: "Failed to add a product" });
+    res.status(500).json({ message: "Failed to add a product", error: error });
   }
 };
 
 exports.updateProductData = async (req, res) => {
   const productId = parseInt(req.params.id);
-  const { namaProduk, harga, deskripsi, linkShoppe, linkTokopedia } = req.body;
+  const { namaProduk, harga, deskripsi, linkShoppe, linkTokopedia, gambar } =
+    req.body;
   const file = req.file;
 
   try {
@@ -116,7 +129,7 @@ exports.updateProductData = async (req, res) => {
 
     if (file) {
       const fileName = `${Date.now()}=${file.originalname}`;
-      const filePath = `produk/${fileName}`;
+      const filePath = `/produk/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("1mage.storage")
@@ -129,6 +142,11 @@ exports.updateProductData = async (req, res) => {
       imagePath = filePath;
     }
 
+    // Bypass untuk keperluan testing server-side
+    if (!file && gambar) {
+      imagePath = `/produk/${gambar}`;
+    }
+
     const updateData = {};
 
     if (namaProduk !== undefined) updateData.namaProduk = namaProduk;
@@ -136,7 +154,7 @@ exports.updateProductData = async (req, res) => {
     if (deskripsi !== undefined) updateData.deskripsi = deskripsi;
     if (linkShoppe !== undefined) updateData.linkShoppe = linkShoppe;
     if (linkTokopedia !== undefined) updateData.linkTokopedia = linkTokopedia;
-    if (file) updateData.gambar = imagePath;
+    if (file || gambar) updateData.gambar = imagePath;
 
     const updated = await prisma.product.update({
       where: { id: productId },

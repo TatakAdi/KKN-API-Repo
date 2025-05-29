@@ -11,6 +11,7 @@ async function main() {
     const adminTest = await prisma.users.create({
       data: {
         fullName: "KampungToga",
+        email: "kampungpanganberseri49@gmail.com",
         password: await bcrypt.hash("password123", 10),
       },
     });
