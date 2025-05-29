@@ -94,31 +94,7 @@
           "404": { "description": "Data produk kosong" },
           "500": { "description": "Internal Server Error" }
         }
-      }
-    },
-    "/api/product/{id}": {
-      "get": {
-        "tags": ["Produk"],
-        "summary": "Mengambil data produk berdasarkan id",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "ID produk yang ingin diambil"
-          }
-        ],
-        "responses": {
-          "200": { "description": "Data produk berhasil diambil" },
-          "404": { "description": "Data produk tidak ditemukan" },
-          "500": { "description": "Internal Server Error" }
-        }
-      }
-    },
-    "/api/product/": {
+      },
       "post": {
         "tags": ["Produk"],
         "summary": "Mengirimkan data produk baru",
@@ -155,10 +131,117 @@
                     "description": "Upload gambar produk"
                   }
                 },
-                "required": ["namaProduk", "harga", "deskripsi"]
+                "required": ["namaProduk", "harga"]
               }
             }
           }
+        },
+        "responses": {
+          "201": { "description": "Data produk berhasil dibuat" },
+          "400": { "description": "No image uploaded" },
+          "401": { "description": "Unauthorized" },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/api/product/{id}": {
+      "get": {
+        "tags": ["Produk"],
+        "summary": "Mengambil data produk berdasarkan id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID produk yang ingin diambil"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Data produk berhasil diambil" },
+          "404": { "description": "Data produk tidak ditemukan" },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "put": {
+        "tags": ["Produk"],
+        "summary": "Mengupdate data produk baru",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID produk yang ingin diupdate datanya"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "namaProduk": {
+                    "type": "string",
+                    "example": "Kripik Bayam"
+                  },
+                  "harga": {
+                    "type": "integer",
+                    "example": "10000"
+                  },
+                  "deskripsi": {
+                    "type": "string",
+                    "example": "Kripik paling sehat sedunia"
+                  },
+                  "linkShoppe": {
+                    "type": "string",
+                    "example": "http://link ke shoppe"
+                  },
+                  "linkTokopedia": {
+                    "type": "string",
+                    "example": "http://link ke tokopedia"
+                  },
+                  "gambar": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Upload gambar produk"
+                  }
+                },
+                "required": ["namaProduk", "harga"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Update data produk berhasil" },
+          "401": { "description": "Unauthorized - user ID missing" },
+          "404": { "description": "Data produk tidak ditemukan" },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "delete": {
+        "tags": ["Produk"],
+        "summary": "Hapus data produk",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID produk yang ingin diupdate datanya"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Data produk berhasil dihapus" },
+          "404": { "description": "Data produk tidak ditemukan" },
+          "500": { "description": "Internal server error" }
         }
       }
     }
