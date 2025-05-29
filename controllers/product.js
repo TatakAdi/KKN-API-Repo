@@ -1,9 +1,8 @@
 const { PrismaClient } = require("@prisma/client");
-const { createClient } = require("@supabase/supabase-js");
+const supabase = require("../config/supabaseClient");
 const jwt = require("jsonwebtoken");
 
 const prisma = new PrismaClient();
-const supabase = createClient(process.env.SUPABASE_URL, process.env.API_KEY);
 
 exports.getProduct = async (req, res) => {
   try {
@@ -58,8 +57,7 @@ exports.getProductById = async (req, res) => {
 };
 
 exports.postNewProduct = async (req, res) => {
-  const { namaProduk, harga, deskripsi, gambar, linkShoppe, linkTokopedia } =
-    req.body;
+  const { namaProduk, harga, deskripsi, linkShoppe, linkTokopedia } = req.body;
   const file = req.file;
 
   const userId = req.userId;
@@ -112,9 +110,14 @@ exports.postNewProduct = async (req, res) => {
 
 exports.updateProductData = async (req, res) => {
   const productId = parseInt(req.params.id);
-  const { namaProduk, harga, deskripsi, linkShoppe, linkTokopedia, gambar } =
-    req.body;
+  const { namaProduk, harga, deskripsi, linkShoppe, linkTokopedia } = req.body;
   const file = req.file;
+
+  const userId = req.userId;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized - user ID missing" });
+  }
 
   try {
     const existProduk = await prisma.product.findUnique({
@@ -126,6 +129,30 @@ exports.updateProductData = async (req, res) => {
     }
 
     let imagePath = existProduk.gambar;
+
+    if (imagePath) {
+      let path = imagePath;
+      if (path.startsWith("/")) {
+        path = path.slice(1);
+      }
+
+      const { error: deleteError } = await supabase.storage
+        .from("1mage.storage")
+        .remove([path]);
+
+      console.log("Gambar barang lama berhasil dihapus");
+
+      if (deleteError) {
+        console.error(
+          "Gagal menghapus gambar lama dari storage: ",
+          deleteError.message
+        );
+        return res.status(401).json({
+          message: "Gagal menghapus gambar barang lama dari storage",
+          error: deleteError,
+        });
+      }
+    }
 
     if (file) {
       const fileName = `${Date.now()}=${file.originalname}`;
@@ -142,11 +169,6 @@ exports.updateProductData = async (req, res) => {
       imagePath = filePath;
     }
 
-    // Bypass untuk keperluan testing server-side
-    if (!file && gambar) {
-      imagePath = `/produk/${gambar}`;
-    }
-
     const updateData = {};
 
     if (namaProduk !== undefined) updateData.namaProduk = namaProduk;
@@ -154,11 +176,14 @@ exports.updateProductData = async (req, res) => {
     if (deskripsi !== undefined) updateData.deskripsi = deskripsi;
     if (linkShoppe !== undefined) updateData.linkShoppe = linkShoppe;
     if (linkTokopedia !== undefined) updateData.linkTokopedia = linkTokopedia;
-    if (file || gambar) updateData.gambar = imagePath;
+    if (file) updateData.gambar = imagePath;
 
     const updated = await prisma.product.update({
       where: { id: productId },
-      data: updateData,
+      data: {
+        ...updateData,
+        user_id: userId,
+      },
     });
 
     const imageUrl = `${process.env.STORAGE_URL}${updated.gambar}`;
@@ -188,16 +213,28 @@ exports.deleteProductData = async (req, res) => {
       return res.status(404).json({ message: "Produk tidak ditemukan" });
     }
 
+    // Problem nya disini wak
     if (product.gambar) {
+      let path = product.gambar;
+      if (path.startsWith("/")) {
+        path = path.slice(1);
+      }
+
       const { error: deleteError } = await supabase.storage
         .from("1mage.storage")
-        .remove([product.gambar]);
+        .remove([path]);
+
+      console.log("Gambar barang berhasil dihapus");
 
       if (deleteError) {
-        console.warn(
+        console.error(
           "Gagal menghapus gambar dari storage: ",
           deleteError.message
         );
+        return res.status(401).json({
+          message: "Gagal menghapus barang dari storage",
+          error: deleteError,
+        });
       }
     }
 
