@@ -8,6 +8,13 @@ const {
   updateProductData,
   deleteProductData,
 } = require("../controllers/product");
+const {
+  getTanaman,
+  getTanamanbyId,
+  createTanaman,
+  updateTanaman,
+  deleteTanaman,
+} = require("../controllers/tanaman");
 const authMiddleware = require("../middleware/auth");
 const uploadMiddleware = require("../middleware/multer");
 
@@ -23,5 +30,12 @@ router.get(`/product/:id`, getProductById);
 router.post(`/product`, authMiddleware, uploadMiddleware, postNewProduct);
 router.put("/product/:id", authMiddleware, uploadMiddleware, updateProductData);
 router.delete("/product/:id", deleteProductData);
+
+// Tanaman
+router.get("/tanaman", getTanaman);
+router.get("/tanaman/:id", getTanamanbyId);
+router.post("/tanaman", authMiddleware, uploadMiddleware, createTanaman);
+router.put("/tanaman/:id", authMiddleware, uploadMiddleware, updateTanaman);
+router.delete("/tanaman/:id", deleteTanaman);
 
 module.exports = router;
