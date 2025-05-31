@@ -83,6 +83,12 @@ exports.postNewProduct = async (req, res) => {
         },
       });
 
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    const imageUrl = `${process.env.STORAGE_URL}/${filePath}`;
+
     const dataProduct = await prisma.product.create({
       data: {
         namaProduk,
@@ -100,7 +106,7 @@ exports.postNewProduct = async (req, res) => {
 
     res.status(201).json({
       message: "Product creation succes",
-      data: { dataProduct },
+      data: { dataProduct, imageUrl },
     });
   } catch (error) {
     console.error("Internal server error, Error: ", error);
