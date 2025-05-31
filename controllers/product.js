@@ -1,6 +1,18 @@
 const { PrismaClient } = require("@prisma/client");
-const supabaseAdmin = require("../config/supabaseClient");
 const { createClient } = require("@supabase/supabase-js");
+
+const token = req.headers.authorization?.split(" ")[1];
+const supabaseUser = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY,
+  {
+    global: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  }
+);
 
 const prisma = new PrismaClient();
 
@@ -74,18 +86,6 @@ exports.postNewProduct = async (req, res) => {
     const fileName = `${Date.now()}-${file.originalname}`;
     const filePath = `/produk/${fileName}`;
 
-    const supabaseUser = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_ANON_KEY,
-      {
-        global: {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      }
-    );
-
     const { error: uploadError } = await supabaseUser.storage
       .from("1mage.storage")
       .upload(filePath, file.buffer, {
@@ -153,7 +153,7 @@ exports.updateProductData = async (req, res) => {
         path = path.slice(1);
       }
 
-      const { error: deleteError } = await supabaseAdmin.storage
+      const { error: deleteError } = await supabaseUser.storage
         .from("1mage.storage")
         .remove([path]);
 
@@ -175,7 +175,7 @@ exports.updateProductData = async (req, res) => {
       const fileName = `${Date.now()}=${file.originalname}`;
       const filePath = `/produk/${fileName}`;
 
-      const { error: uploadError } = await supabaseAdmin.storage
+      const { error: uploadError } = await supabaseUser.storage
         .from("1mage.storage")
         .upload(filePath, file.buffer, {
           contentType: file.mimetype,
@@ -186,18 +186,6 @@ exports.updateProductData = async (req, res) => {
       imagePath = filePath;
     }
 
-    const supabaseClient = createClient(
-      process.env.SUPABASE_URL,
-      process.env.API_KEY,
-      {
-        global: {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      }
-    );
-
     const updateData = {};
 
     if (namaProduk !== undefined) updateData.namaProduk = namaProduk;
@@ -207,20 +195,13 @@ exports.updateProductData = async (req, res) => {
     if (linkTokopedia !== undefined) updateData.linkTokopedia = linkTokopedia;
     if (file) updateData.gambar = imagePath;
 
-    // const updated = await prisma.product.update({
-    //   where: { id: productId },
-    //   data: {
-    //     ...updateData,
-    //     user_id: userId,
-    //   },
-    // });
-
-    const { data: updated, error: updatedError } = await supabaseClient
-      .from("product")
-      .update(updateData)
-      .eq("id", productId)
-      .select()
-      .single();
+    const updated = await prisma.product.update({
+      where: { id: productId },
+      data: {
+        ...updateData,
+        user_id: userId,
+      },
+    });
 
     const imageUrl = `${process.env.STORAGE_URL}${updated.gambar}`;
 
@@ -256,7 +237,7 @@ exports.deleteProductData = async (req, res) => {
         path = path.slice(1);
       }
 
-      const { error: deleteError } = await supabaseAdmin.storage
+      const { error: deleteError } = await supabaseUser.storage
         .from("1mage.storage")
         .remove([path]);
 
