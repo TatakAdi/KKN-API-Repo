@@ -1,19 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const { createClient } = require("@supabase/supabase-js");
 
-const token = req.headers.authorization?.split(" ")[1];
-const supabaseUser = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY,
-  {
-    global: {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-  }
-);
-
 const prisma = new PrismaClient();
 
 exports.getProduct = async (req, res) => {
@@ -73,6 +60,17 @@ exports.postNewProduct = async (req, res) => {
   const file = req.file;
   const token = req.headers.authorization?.split(" ")[1];
   const userId = req.userId;
+  const supabaseUser = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    }
+  );
 
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized - user ID missing" });
@@ -131,6 +129,18 @@ exports.updateProductData = async (req, res) => {
   const file = req.file;
 
   const userId = req.userId;
+
+  const supabaseUser = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    }
+  );
 
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized - user ID missing" });
@@ -220,6 +230,18 @@ exports.updateProductData = async (req, res) => {
 
 exports.deleteProductData = async (req, res) => {
   const productId = parseInt(req.params.id);
+  const token = req.headers.authorization?.split(" ")[1];
+  const supabaseUser = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    }
+  );
 
   try {
     const product = await prisma.product.findUnique({
