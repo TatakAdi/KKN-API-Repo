@@ -163,7 +163,7 @@ exports.updateProductData = async (req, res) => {
         path = path.slice(1);
       }
 
-      const { error: deleteError } = await supabase.storage
+      const { error: deleteError } = await supabaseAdmin.storage
         .from("1mage.storage")
         .remove([path]);
 
@@ -185,7 +185,7 @@ exports.updateProductData = async (req, res) => {
       const fileName = `${Date.now()}=${file.originalname}`;
       const filePath = `/produk/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabaseAdmin.storage
         .from("1mage.storage")
         .upload(filePath, file.buffer, {
           contentType: file.mimetype,
@@ -266,7 +266,7 @@ exports.deleteProductData = async (req, res) => {
         path = path.slice(1);
       }
 
-      const { error: deleteError } = await supabase.storage
+      const { error: deleteError } = await supabaseAdmin.storage
         .from("1mage.storage")
         .remove([path]);
 
