@@ -30,7 +30,7 @@ model product {
   gambar String?
   linkShoppe String?
   linkTokopedia String?
-  user_id String?
+  user_id String? @db.Uuid
   timeAdded DateTime
 }
 
@@ -39,7 +39,7 @@ model tanaman {
   namaTanaman String
   deskripsi String?
   gambar String?
-  user_id String?
+  user_id String? @db.Uuid
   timeAdded DateTime
 }
 

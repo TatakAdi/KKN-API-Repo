@@ -1,6 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
 const supabase = require("../config/supabaseClient");
-const jwt = require("jsonwebtoken");
 
 const prisma = new PrismaClient();
 
