@@ -130,6 +130,16 @@ exports.updateProductData = async (req, res) => {
 
   const userId = req.userId;
 
+  console.log("Token saat update: ", token);
+
+  if (!token) {
+    return res.status(401).json({ message: "Missing or invalid token" });
+  }
+
+  const { data: userData, error: authError } =
+    await supabaseUser.auth.getUser();
+  console.log("User saat update:", userData?.user?.id);
+
   const supabaseUser = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_ANON_KEY,
