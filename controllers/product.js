@@ -127,10 +127,7 @@ exports.updateProductData = async (req, res) => {
   const { namaProduk, harga, deskripsi, linkShoppe, linkTokopedia } = req.body;
   const token = req.headers.authorization?.split(" ")[1];
   const file = req.file;
-
   const userId = req.userId;
-
-  console.log("Token saat update: ", token);
 
   if (!token) {
     return res.status(401).json({ message: "Missing or invalid token" });
@@ -146,10 +143,6 @@ exports.updateProductData = async (req, res) => {
       },
     }
   );
-
-  const { data: userData, error: authError } =
-    await supabaseUser.auth.getUser();
-  console.log("User saat update:", userData?.user?.id);
 
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized - user ID missing" });
@@ -179,7 +172,7 @@ exports.updateProductData = async (req, res) => {
       console.log("Gambar barang lama berhasil dihapus");
 
       if (deleteError) {
-        console.error(
+        console.log(
           "Gagal menghapus gambar lama dari storage: ",
           deleteError.message
         );
@@ -275,7 +268,7 @@ exports.deleteProductData = async (req, res) => {
       console.log("Gambar barang berhasil dihapus");
 
       if (deleteError) {
-        console.error(
+        console.log(
           "Gagal menghapus gambar dari storage: ",
           deleteError.message
         );
