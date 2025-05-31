@@ -70,51 +70,25 @@ exports.postNewProduct = async (req, res) => {
     return res.status(400).json({ message: "No image uploaded" }); // Kalau gambar belum ada diupload pas penambahan produk
   }
   try {
-    // const fileName = `${Date.now()}-${file.originalname}`;
-    // const filePath = `/produk/${fileName}`;
+    // Yang ini ternyata yang bermasalah wak
+    const fileName = `${Date.now()}-${file.originalname}`;
+    const filePath = `/produk/${fileName}`;
 
-    // const { error: uploadError } = await supabaseAdmin.storage
-    //   .from("1mage.storage")
-    //   .upload(filePath, file.buffer, {
-    //     contentType: file.mimetype,
-    //   });
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from("1mage.storage")
+      .upload(filePath, file.buffer, {
+        contentType: file.mimetype,
+        metadata: {
+          owner: userId,
+        },
+      });
 
-    // if (uploadError) {
-    //   throw uploadError;
-    // }
-
-    // const imageUrl = `${process.env.STORAGE_URL}/${filePath}`;
-
-    // const supabaseClient = createClient(
-    //   process.env.SUPABASE_URL,
-    //   process.env.SUPABASE_SERVICE_ROLE_KEY,
-    //   {
-    //     global: {
-    //       headers: {
-    //         Authorization: `Bearer ${token}`,
-    //       },
-    //     },
-    //   }
-    // );
-
-    // const { data, error } = await supabaseClient.from("product").insert([
-    //   {
-    //     namaProduk,
-    //     harga: parseInt(harga),
-    //     deskripsi,
-    //     linkShoppe,
-    //     linkTokopedia,
-    //     user_id: userId,
-    //     gambar: filePath,
-    //     timeAdded: new Date(),
-    //   },
-    // ]);
     const dataProduct = await prisma.product.create({
       data: {
         namaProduk,
         harga: parseInt(harga),
         deskripsi,
-        // gambar: filePath,
+        gambar: filePath,
         linkShoppe,
         linkTokopedia,
         user_id: userId,
