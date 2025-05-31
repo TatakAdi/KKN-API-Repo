@@ -1,5 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
-const supabase = require("../config/supabaseClient");
+const supabaseAdmin = require("../config/supabaseClient");
+const { createClient } = require("@supabase/supabase-js");
 
 const prisma = new PrismaClient();
 
@@ -58,7 +59,7 @@ exports.getProductById = async (req, res) => {
 exports.postNewProduct = async (req, res) => {
   const { namaProduk, harga, deskripsi, linkShoppe, linkTokopedia } = req.body;
   const file = req.file;
-
+  const token = req.headers.authorization?.split(" ")[1];
   const userId = req.userId;
 
   if (!userId) {
@@ -72,7 +73,7 @@ exports.postNewProduct = async (req, res) => {
     const fileName = `${Date.now()}-${file.originalname}`;
     const filePath = `/produk/${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabaseAdmin.storage
       .from("1mage.storage")
       .upload(filePath, file.buffer, {
         contentType: file.mimetype,
@@ -84,6 +85,30 @@ exports.postNewProduct = async (req, res) => {
 
     const imageUrl = `${process.env.STORAGE_URL}/${filePath}`;
 
+    // const supabaseClient = createClient(
+    //   process.env.SUPABASE_URL,
+    //   process.env.SUPABASE_SERVICE_ROLE_KEY,
+    //   {
+    //     global: {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //     },
+    //   }
+    // );
+
+    // const { data, error } = await supabaseClient.from("product").insert([
+    //   {
+    //     namaProduk,
+    //     harga: parseInt(harga),
+    //     deskripsi,
+    //     linkShoppe,
+    //     linkTokopedia,
+    //     user_id: userId,
+    //     gambar: filePath,
+    //     timeAdded: new Date(),
+    //   },
+    // ]);
     const dataProduct = await prisma.product.create({
       data: {
         namaProduk,
@@ -97,9 +122,11 @@ exports.postNewProduct = async (req, res) => {
       },
     });
 
+    // if (error) throw error;
+
     res.status(201).json({
       message: "Product creation succes",
-      data: { ...dataProduct, urlGambar: imageUrl },
+      data: { dataProduct, urlGambar: imageUrl },
     });
   } catch (error) {
     console.error("Internal server error, Error: ", error);
@@ -110,6 +137,7 @@ exports.postNewProduct = async (req, res) => {
 exports.updateProductData = async (req, res) => {
   const productId = parseInt(req.params.id);
   const { namaProduk, harga, deskripsi, linkShoppe, linkTokopedia } = req.body;
+  const token = req.headers.authorization?.split(" ")[1];
   const file = req.file;
 
   const userId = req.userId;
@@ -168,6 +196,18 @@ exports.updateProductData = async (req, res) => {
       imagePath = filePath;
     }
 
+    const supabaseClient = createClient(
+      process.env.SUPABASE_URL,
+      process.env.API_KEY,
+      {
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      }
+    );
+
     const updateData = {};
 
     if (namaProduk !== undefined) updateData.namaProduk = namaProduk;
@@ -177,13 +217,20 @@ exports.updateProductData = async (req, res) => {
     if (linkTokopedia !== undefined) updateData.linkTokopedia = linkTokopedia;
     if (file) updateData.gambar = imagePath;
 
-    const updated = await prisma.product.update({
-      where: { id: productId },
-      data: {
-        ...updateData,
-        user_id: userId,
-      },
-    });
+    // const updated = await prisma.product.update({
+    //   where: { id: productId },
+    //   data: {
+    //     ...updateData,
+    //     user_id: userId,
+    //   },
+    // });
+
+    const { data: updated, error: updatedError } = await supabaseClient
+      .from("product")
+      .update(updateData)
+      .eq("id", productId)
+      .select()
+      .single();
 
     const imageUrl = `${process.env.STORAGE_URL}${updated.gambar}`;
 
