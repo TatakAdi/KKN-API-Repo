@@ -59,7 +59,6 @@ exports.getProductById = async (req, res) => {
 exports.postNewProduct = async (req, res) => {
   const { namaProduk, harga, deskripsi, linkShoppe, linkTokopedia } = req.body;
   const file = req.file;
-  const token = req.headers.authorization?.split(" ")[1];
   const userId = req.userId;
 
   if (!userId) {
@@ -74,7 +73,7 @@ exports.postNewProduct = async (req, res) => {
     const fileName = `${Date.now()}-${file.originalname}`;
     const filePath = `/produk/${fileName}`;
 
-    const { error: uploadError } = await supabaseAdmin.storage
+    await supabaseAdmin.storage
       .from("1mage.storage")
       .upload(filePath, file.buffer, {
         contentType: file.mimetype,
@@ -83,9 +82,9 @@ exports.postNewProduct = async (req, res) => {
         },
       });
 
-    if (uploadError) {
-      throw uploadError;
-    }
+    // if (uploadError) {
+    //   throw uploadError;
+    // }
 
     const imageUrl = `${process.env.STORAGE_URL}/${filePath}`;
 
