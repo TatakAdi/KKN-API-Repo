@@ -70,20 +70,20 @@ exports.postNewProduct = async (req, res) => {
     return res.status(400).json({ message: "No image uploaded" }); // Kalau gambar belum ada diupload pas penambahan produk
   }
   try {
-    const fileName = `${Date.now()}-${file.originalname}`;
-    const filePath = `/produk/${fileName}`;
+    // const fileName = `${Date.now()}-${file.originalname}`;
+    // const filePath = `/produk/${fileName}`;
 
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from("1mage.storage")
-      .upload(filePath, file.buffer, {
-        contentType: file.mimetype,
-      });
+    // const { error: uploadError } = await supabaseAdmin.storage
+    //   .from("1mage.storage")
+    //   .upload(filePath, file.buffer, {
+    //     contentType: file.mimetype,
+    //   });
 
-    if (uploadError) {
-      throw uploadError;
-    }
+    // if (uploadError) {
+    //   throw uploadError;
+    // }
 
-    const imageUrl = `${process.env.STORAGE_URL}/${filePath}`;
+    // const imageUrl = `${process.env.STORAGE_URL}/${filePath}`;
 
     // const supabaseClient = createClient(
     //   process.env.SUPABASE_URL,
@@ -114,7 +114,7 @@ exports.postNewProduct = async (req, res) => {
         namaProduk,
         harga: parseInt(harga),
         deskripsi,
-        gambar: filePath,
+        // gambar: filePath,
         linkShoppe,
         linkTokopedia,
         user_id: userId,
@@ -126,7 +126,7 @@ exports.postNewProduct = async (req, res) => {
 
     res.status(201).json({
       message: "Product creation succes",
-      data: { dataProduct, urlGambar: imageUrl },
+      data: { dataProduct },
     });
   } catch (error) {
     console.error("Internal server error, Error: ", error);
