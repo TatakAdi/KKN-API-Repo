@@ -59,6 +59,7 @@ exports.getProductById = async (req, res) => {
 exports.postNewProduct = async (req, res) => {
   const { namaProduk, harga, deskripsi, linkShoppe, linkTokopedia } = req.body;
   const file = req.file;
+  const token = req.headers.authorization?.split(" ")[1];
   const userId = req.userId;
 
   if (!userId) {
@@ -73,20 +74,30 @@ exports.postNewProduct = async (req, res) => {
     const fileName = `${Date.now()}-${file.originalname}`;
     const filePath = `/produk/${fileName}`;
 
-    await supabaseAdmin.storage
+    const supabaseUser = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_ANON_KEY,
+      {
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      }
+    );
+
+    const { error: uploadError } = await supabaseUser.storage
       .from("1mage.storage")
       .upload(filePath, file.buffer, {
         contentType: file.mimetype,
-        metadata: {
-          owner: userId,
-        },
+        upsert: false,
       });
 
-    // if (uploadError) {
-    //   throw uploadError;
-    // }
+    if (uploadError) {
+      throw uploadError;
+    }
 
-    const imageUrl = `${process.env.STORAGE_URL}/${filePath}`;
+    const imageUrl = `${process.env.STORAGE_URL}${filePath}`;
 
     const dataProduct = await prisma.product.create({
       data: {
