@@ -15,6 +15,20 @@ const {
   updateTanaman,
   deleteTanaman,
 } = require("../controllers/tanaman");
+const {
+  getGaleri,
+  getGaleriById,
+  createGaleri,
+  updateGaleri,
+  deleteGaleri,
+} = require("../controllers/galeri");
+const {
+  getPrestasi,
+  getPrestasiById,
+  createPrestasi,
+  updatePrestasi,
+  deletePrestasi,
+} = require("../controllers/prestasi");
 const authMiddleware = require("../middleware/auth");
 const uploadMiddleware = require("../middleware/multer");
 
@@ -37,5 +51,19 @@ router.get("/tanaman/:id", getTanamanbyId);
 router.post("/tanaman", authMiddleware, uploadMiddleware, createTanaman);
 router.put("/tanaman/:id", authMiddleware, uploadMiddleware, updateTanaman);
 router.delete("/tanaman/:id", deleteTanaman);
+
+// Galeri
+router.get("/galeri", getGaleri);
+router.get("/galeri/:id", getGaleriById);
+router.post("/galeri", authMiddleware, uploadMiddleware, createGaleri);
+router.put("/galeri/:id", authMiddleware, uploadMiddleware, updateGaleri);
+router.delete("/galeri/:id", authMiddleware, deleteGaleri);
+
+// Prestasi
+router.get("/prestasi", getPrestasi);
+router.get("/prestasi/:id", getPrestasiById);
+router.post("/prestasi", authMiddleware, createPrestasi);
+router.put("/prestasi/:id", authMiddleware, updatePrestasi);
+router.delete("/prestasi/:id", authMiddleware, deletePrestasi);
 
 module.exports = router;
