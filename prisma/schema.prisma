@@ -46,6 +46,7 @@ model tanaman {
 model galeri {
   id Int @id @default(autoincrement())
   gambar String
+  altText String?
   user_id String? @db.Uuid
   timeAdded DateTime
 }
