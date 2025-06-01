@@ -43,3 +43,17 @@ model tanaman {
   timeAdded DateTime
 }
 
+model galeri {
+  id Int @id @default(autoincrement())
+  gambar String
+  user_id String? @db.Uuid
+  timeAdded DateTime
+}
+
+model prestasi {
+  id Int @id @default(autoincrement())
+  namaPenghargaan String
+  pemberiPenghargaan String
+  user_id String? @db.Uuid
+  timeAdded DateTime
+}
