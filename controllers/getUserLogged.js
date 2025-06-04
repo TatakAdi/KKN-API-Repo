@@ -6,7 +6,7 @@ exports.getUserLogged = async (req, res) => {
     const userId = req.userId;
     const user = await prisma.users.findUnique({ where: { auth_id: userId } });
 
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: "User tidak ditemukan" });
 
     res.json({
       fullName: user.fullName,

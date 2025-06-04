@@ -12,7 +12,7 @@ async function main() {
       data: {
         fullName: "KampungToga",
         email: "kampungpanganberseri49@gmail.com",
-        password: await bcrypt.hash("password123", 10),
+        password: await bcrypt.hash("K4mpungT0g@Pang4nBerseri", 10),
       },
     });
 

@@ -13,12 +13,12 @@ exports.login = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "User tidak ditemuka" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Wrong password or UserName" });
+      return res.status(401).json({ message: "Username atau password salah" });
     }
 
     const email = user.email;

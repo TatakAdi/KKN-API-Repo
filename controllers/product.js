@@ -22,7 +22,7 @@ exports.getProduct = async (req, res) => {
     });
   } catch (error) {
     console.error("Internal server error, Error: ", error);
-    res.status(500).json({ message: "internal server error" });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -35,7 +35,7 @@ exports.getProductById = async (req, res) => {
     });
 
     if (data === null) {
-      return res.status(404).json({ message: "Product not found" });
+      return res.status(404).json({ message: "Produk tidak ditemukan" });
     }
 
     res.status(200).json({
@@ -77,7 +77,7 @@ exports.postNewProduct = async (req, res) => {
   }
 
   if (!file) {
-    return res.status(400).json({ message: "No image uploaded" }); // Kalau gambar belum ada diupload pas penambahan produk
+    return res.status(400).json({ message: "Tidak ada gambar yang diupload" }); // Kalau gambar belum ada diupload pas penambahan produk
   }
   try {
     // Yang ini ternyata yang bermasalah wak
@@ -97,14 +97,18 @@ exports.postNewProduct = async (req, res) => {
 
     const imageUrl = `${process.env.STORAGE_URL}${filePath}`;
 
-    const dataProduct = await prisma.product.create({
+    const dataInput = {
+      namaProduk,
+      harga: parseInt(harga),
+      deskripsi,
+      gambar: filePath,
+      linkShoppe,
+      linkTokopedia,
+    };
+
+    await prisma.product.create({
       data: {
-        namaProduk,
-        harga: parseInt(harga),
-        deskripsi,
-        gambar: filePath,
-        linkShoppe,
-        linkTokopedia,
+        ...dataInput,
         user_id: userId,
         timeAdded: new Date(),
       },
@@ -113,12 +117,14 @@ exports.postNewProduct = async (req, res) => {
     // if (error) throw error;
 
     res.status(201).json({
-      message: "Product creation succes",
-      data: { dataProduct, imageUrl },
+      message: "Penambahan produk sukses",
+      data: { ...dataInput, imageUrl },
     });
   } catch (error) {
     console.error("Internal server error, Error: ", error);
-    res.status(500).json({ message: "Failed to add a product", error: error });
+    res
+      .status(500)
+      .json({ message: "Gagal menambahkan product", error: error });
   }
 };
 
@@ -207,7 +213,7 @@ exports.updateProductData = async (req, res) => {
     if (linkTokopedia !== undefined) updateData.linkTokopedia = linkTokopedia;
     if (file) updateData.gambar = imagePath;
 
-    const updated = await prisma.product.update({
+    await prisma.product.update({
       where: { id: productId },
       data: {
         ...updateData,
@@ -220,7 +226,7 @@ exports.updateProductData = async (req, res) => {
     res.status(200).json({
       message: "Update data produk berhasil",
       data: {
-        ...updated,
+        ...updateData,
         urlGambar: imageUrl,
       },
     });

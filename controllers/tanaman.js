@@ -1,4 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
+const { createClient } = require("@supabase/supabase-js");
 const supabase = require("../config/supabaseClient");
 
 const prisma = new PrismaClient();
@@ -55,8 +56,19 @@ exports.getTanamanbyId = async (req, res) => {
 exports.createTanaman = async (req, res) => {
   const { namaTanaman, deskripsi } = req.body;
   const file = req.file;
-
+  const token = req.headers.authorization?.split(" ")[1];
   const userId = req.userId;
+  const supabaseUser = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    }
+  );
 
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized - user ID missing" });
@@ -69,7 +81,7 @@ exports.createTanaman = async (req, res) => {
     const fileName = `${Date.now()}-${file.originalname}`;
     const filePath = `/tanaman/${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabaseUser.storage
       .from("1mage.storage")
       .upload(filePath, file.buffer, {
         contentType: file.mimetype,
@@ -79,13 +91,17 @@ exports.createTanaman = async (req, res) => {
       throw uploadError;
     }
 
-    const imageUrl = `${process.env.STORAGE_URL}/${filePath}`;
+    const imageUrl = `${process.env.STORAGE_URL}${filePath}`;
 
-    const dataTanaman = await prisma.tanaman.create({
+    const dataInput = {
+      namaTanaman,
+      deskripsi,
+      gambar: filePath,
+    };
+
+    await prisma.tanaman.create({
       data: {
-        namaTanaman,
-        deskripsi,
-        gambar: filePath,
+        ...dataInput,
         user_id: userId,
         timeAdded: new Date(),
       },
@@ -93,7 +109,7 @@ exports.createTanaman = async (req, res) => {
 
     res.status(201).json({
       message: "Tanaman creation succes",
-      data: { ...dataTanaman, urlGambar: imageUrl },
+      data: { dataInput, urlGambar: imageUrl },
     });
   } catch (error) {
     console.error("Internal server error, Error: ", error);
@@ -105,8 +121,19 @@ exports.updateTanaman = async (req, res) => {
   const tanamanId = parseInt(req.params.id);
   const { namaTanaman, deskripsi } = req.body;
   const file = req.file;
-
+  const token = req.headers.authorization?.split(" ")[1];
   const userId = req.userId;
+  const supabaseUser = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    }
+  );
 
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized - user ID missing" });
@@ -129,7 +156,7 @@ exports.updateTanaman = async (req, res) => {
         path = path.slice(1);
       }
 
-      const { error: deleteError } = await supabase.storage
+      const { error: deleteError } = await supabaseUser.storage
         .from("1mage.storage")
         .remove([path]);
 
@@ -151,7 +178,7 @@ exports.updateTanaman = async (req, res) => {
       const fileName = `${Date.now()}-${file.originalname}`;
       const filePath = `/tanaman/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabaseUser.storage
         .from("1mage.storage")
         .upload(filePath, file.buffer, {
           contentType: file.mimetype,
@@ -181,7 +208,7 @@ exports.updateTanaman = async (req, res) => {
     res.status(200).json({
       message: "Update data produk berhasil",
       data: {
-        ...updated,
+        ...updateData,
         urlGambar: imageUrl,
       },
     });
@@ -193,6 +220,19 @@ exports.updateTanaman = async (req, res) => {
 
 exports.deleteTanaman = async (req, res) => {
   const tanamanId = parseInt(req.params.id);
+  const token = req.headers.authorization?.split(" ")[1];
+  const userId = req.userId;
+  const supabaseUser = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    }
+  );
 
   try {
     const tanaman = await prisma.tanaman.findUnique({
@@ -209,7 +249,7 @@ exports.deleteTanaman = async (req, res) => {
         path = path.slice(1);
       }
 
-      const { error: deleteError } = await supabase.storage
+      const { error: deleteError } = await supabaseUser.storage
         .from("1mage.storage")
         .remove([path]);
 
@@ -228,7 +268,7 @@ exports.deleteTanaman = async (req, res) => {
     }
 
     await prisma.tanaman.delete({
-      where: { id: tanaman },
+      where: { id: tanaman.id },
     });
 
     res.status(200).json({ message: "Tanaman berhasil dihapus" });
