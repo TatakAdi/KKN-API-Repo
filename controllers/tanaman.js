@@ -144,7 +144,7 @@ exports.updateSpesies = async (req, res) => {
 
   try {
     const existSpesies = await prisma.budidaya.findUnique({
-      where: { id: tanamanId },
+      where: { id: spesiesId },
     });
 
     if (!existSpesies) {
