@@ -191,8 +191,8 @@ exports.updateTanaman = async (req, res) => {
 
     const updateData = {};
 
-    if (namaTanaman !== undefined) updateData.namaTanaman = namaTanaman;
-    if (deskripsi !== undefined) updateData.deskripsi = deskripsi;
+    if (namaTanaman !== null) updateData.namaTanaman = namaTanaman;
+    if (deskripsi !== null) updateData.deskripsi = deskripsi;
     if (file) updateData.gambar = imagePath;
 
     await prisma.tanaman.update({

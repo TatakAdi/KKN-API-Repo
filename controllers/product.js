@@ -206,11 +206,11 @@ exports.updateProductData = async (req, res) => {
 
     const updateData = {};
 
-    if (namaProduk !== undefined) updateData.namaProduk = namaProduk;
-    if (harga !== undefined) updateData.harga = parseInt(harga);
-    if (deskripsi !== undefined) updateData.deskripsi = deskripsi;
-    if (linkShoppe !== undefined) updateData.linkShoppe = linkShoppe;
-    if (linkTokopedia !== undefined) updateData.linkTokopedia = linkTokopedia;
+    if (namaProduk !== null) updateData.namaProduk = namaProduk;
+    if (harga !== null) updateData.harga = parseInt(harga);
+    if (deskripsi !== null) updateData.deskripsi = deskripsi;
+    if (linkShoppe !== null) updateData.linkShoppe = linkShoppe;
+    if (linkTokopedia !== null) updateData.linkTokopedia = linkTokopedia;
     if (file) updateData.gambar = imagePath;
 
     await prisma.product.update({
@@ -221,7 +221,12 @@ exports.updateProductData = async (req, res) => {
       },
     });
 
-    const imageUrl = `${process.env.STORAGE_URL}${updateData.gambar}`;
+    let imageUrl;
+    if (file) {
+      imageUrl = `${process.env.STORAGE_URL}${updateData.gambar}`;
+    } else {
+      imageUrl = `${process.env.STORAGE_URL}${existProduk.gambar}`;
+    }
 
     res.status(200).json({
       message: "Update data produk berhasil",
