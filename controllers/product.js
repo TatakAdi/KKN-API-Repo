@@ -207,7 +207,7 @@ exports.updateProductData = async (req, res) => {
     const updateData = {};
 
     if (namaProduk !== null) updateData.namaProduk = namaProduk;
-    if (harga !== null) updateData.harga = harga;
+    if (harga !== null) updateData.harga = parseInt(harga);
     if (deskripsi !== null) updateData.deskripsi = deskripsi;
     if (linkShoppe !== null) updateData.linkShoppe = linkShoppe;
     if (linkTokopedia !== null) updateData.linkTokopedia = linkTokopedia;
