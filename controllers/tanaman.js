@@ -195,7 +195,7 @@ exports.updateTanaman = async (req, res) => {
     if (deskripsi !== undefined) updateData.deskripsi = deskripsi;
     if (file) updateData.gambar = imagePath;
 
-    const updated = await prisma.tanaman.update({
+    await prisma.tanaman.update({
       where: { id: tanamanId },
       data: {
         ...updateData,
@@ -203,7 +203,7 @@ exports.updateTanaman = async (req, res) => {
       },
     });
 
-    const imageUrl = `${process.env.STORAGE_URL}${updated.gambar}`;
+    const imageUrl = `${process.env.STORAGE_URL}${updatedData.gambar}`;
 
     res.status(200).json({
       message: "Update data produk berhasil",
