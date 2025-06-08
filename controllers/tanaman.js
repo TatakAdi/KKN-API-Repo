@@ -191,8 +191,10 @@ exports.updateTanaman = async (req, res) => {
 
     const updateData = {};
 
-    if (namaTanaman !== null) updateData.namaTanaman = namaTanaman;
-    if (deskripsi !== null) updateData.deskripsi = deskripsi;
+    if (namaTanaman !== undefined && namaTanaman !== "")
+      updateData.namaTanaman = namaTanaman;
+    if (deskripsi !== undefined && deskripsi !== "")
+      updateData.deskripsi = deskripsi;
     if (file) updateData.gambar = imagePath;
 
     await prisma.tanaman.update({
@@ -203,7 +205,12 @@ exports.updateTanaman = async (req, res) => {
       },
     });
 
-    const imageUrl = `${process.env.STORAGE_URL}${updatedData.gambar}`;
+    let imageUrl;
+    if (file) {
+      imageUrl = `${process.env.STORAGE_URL}${updateData.gambar}`;
+    } else {
+      imageUrl = `${process.env.STORAGE_URL}${existTanaman.gambar}`;
+    }
 
     res.status(200).json({
       message: "Update data produk berhasil",

@@ -135,6 +135,8 @@ exports.updateProductData = async (req, res) => {
   const file = req.file;
   const userId = req.userId;
 
+  const hargaInt = parseInt(harga);
+
   if (!token) {
     return res.status(401).json({ message: "Missing or invalid token" });
   }
@@ -190,7 +192,7 @@ exports.updateProductData = async (req, res) => {
     }
 
     if (file) {
-      const fileName = `${Date.now()}=${file.originalname}`;
+      const fileName = `${Date.now()}-${file.originalname}`;
       const filePath = `/produk/${fileName}`;
 
       const { error: uploadError } = await supabaseUser.storage
@@ -206,11 +208,16 @@ exports.updateProductData = async (req, res) => {
 
     const updateData = {};
 
-    if (namaProduk !== null) updateData.namaProduk = namaProduk;
-    if (harga !== null) updateData.harga = parseInt(harga);
-    if (deskripsi !== null) updateData.deskripsi = deskripsi;
-    if (linkShoppe !== null) updateData.linkShoppe = linkShoppe;
-    if (linkTokopedia !== null) updateData.linkTokopedia = linkTokopedia;
+    if (namaProduk !== undefined && namaProduk !== "")
+      updateData.namaProduk = namaProduk;
+    if (harga !== undefined && !isNaN(hargaInt) && harga !== "")
+      updateData.harga = hargaInt;
+    if (deskripsi !== undefined && deskripsi !== "")
+      updateData.deskripsi = deskripsi;
+    if (linkShoppe !== undefined && linkShoppe !== "")
+      updateData.linkShoppe = linkShoppe;
+    if (linkTokopedia !== undefined && linkTokopedia !== "")
+      updateData.linkTokopedia = linkTokopedia;
     if (file) updateData.gambar = imagePath;
 
     await prisma.product.update({
