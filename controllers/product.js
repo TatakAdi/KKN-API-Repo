@@ -221,7 +221,7 @@ exports.updateProductData = async (req, res) => {
       },
     });
 
-    const imageUrl = `${process.env.STORAGE_URL}${updated.gambar}`;
+    const imageUrl = `${process.env.STORAGE_URL}${updateData.gambar}`;
 
     res.status(200).json({
       message: "Update data produk berhasil",
