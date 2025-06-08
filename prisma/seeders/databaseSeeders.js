@@ -30,9 +30,9 @@ async function main() {
     });
 
     console.log("Menambahkan tanamanTest");
-    const tanamanTest = await prisma.tanaman.create({
+    const tanamanTest = await prisma.budidaya.create({
       data: {
-        namaTanaman: "Bayam Brazil",
+        namaSpesies: "Bayam Brazil",
         deskripsi: "",
         gambar: "",
         timeAdded: new Date(),

@@ -9,11 +9,11 @@ const {
   deleteProductData,
 } = require("../controllers/product");
 const {
-  getTanaman,
-  getTanamanbyId,
-  createTanaman,
-  updateTanaman,
-  deleteTanaman,
+  getSpesies,
+  getSpesiesbyId,
+  deleteSpesies,
+  createSpesies,
+  updateSpesies,
 } = require("../controllers/tanaman");
 const {
   getGaleri,
@@ -46,11 +46,11 @@ router.put("/product/:id", authMiddleware, uploadMiddleware, updateProductData);
 router.delete("/product/:id", deleteProductData);
 
 // Tanaman
-router.get("/tanaman", getTanaman);
-router.get("/tanaman/:id", getTanamanbyId);
-router.post("/tanaman", authMiddleware, uploadMiddleware, createTanaman);
-router.put("/tanaman/:id", authMiddleware, uploadMiddleware, updateTanaman);
-router.delete("/tanaman/:id", deleteTanaman);
+router.get("/budidaya", getSpesies);
+router.get("/budidaya/:id", getSpesiesbyId);
+router.post("/budidaya", authMiddleware, uploadMiddleware, createSpesies);
+router.put("/budidaya/:id", authMiddleware, uploadMiddleware, updateSpesies);
+router.delete("/budidaya/:id", deleteSpesies);
 
 // Galeri
 router.get("/galeri", getGaleri);

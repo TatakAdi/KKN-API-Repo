@@ -4,12 +4,12 @@ const supabase = require("../config/supabaseClient");
 
 const prisma = new PrismaClient();
 
-exports.getTanaman = async (req, res) => {
+exports.getSpesies = async (req, res) => {
   try {
-    const data = await prisma.tanaman.findMany();
+    const data = await prisma.budidaya.findMany();
 
     if (data === null) {
-      return res.status(404).json({ message: "Data produk Kosong" });
+      return res.status(404).json({ message: "Data spesies Kosong" });
     }
 
     const formattedData = data.map((item) => ({
@@ -18,7 +18,7 @@ exports.getTanaman = async (req, res) => {
     }));
 
     res.status(200).json({
-      message: "Data tanaman berhasil diambil",
+      message: "Data spesies berhasil diambil",
       data: formattedData,
     });
   } catch (error) {
@@ -27,22 +27,22 @@ exports.getTanaman = async (req, res) => {
   }
 };
 
-exports.getTanamanbyId = async (req, res) => {
+exports.getSpesiesbyId = async (req, res) => {
   try {
-    const data = await prisma.tanaman.findUnique({
+    const data = await prisma.budidaya.findUnique({
       where: {
         id: parseInt(req.params.id),
       },
     });
 
     if (data === null) {
-      return res.status(404).json({ message: "Tanaman not found" });
+      return res.status(404).json({ message: "Spesies not found" });
     }
 
     res.status(200).json({
-      message: "Data satu tanaman berhasil diambil",
+      message: "Data satu spesies berhasil diambil",
       data: {
-        nama: data.namaTanaman,
+        nama: data.namaSpesies,
         deskripsi: data.deskripsi,
         urlGambar: `${process.env.STORAGE_URL}${data.gambar}`,
       },
@@ -53,8 +53,8 @@ exports.getTanamanbyId = async (req, res) => {
   }
 };
 
-exports.createTanaman = async (req, res) => {
-  const { namaTanaman, deskripsi } = req.body;
+exports.createSpesies = async (req, res) => {
+  const { namaSpesies, deskripsi } = req.body;
   const file = req.file;
   const token = req.headers.authorization?.split(" ")[1];
   const userId = req.userId;
@@ -94,12 +94,12 @@ exports.createTanaman = async (req, res) => {
     const imageUrl = `${process.env.STORAGE_URL}${filePath}`;
 
     const dataInput = {
-      namaTanaman,
+      namaSpesies,
       deskripsi,
       gambar: filePath,
     };
 
-    await prisma.tanaman.create({
+    await prisma.budidaya.create({
       data: {
         ...dataInput,
         user_id: userId,
@@ -117,9 +117,9 @@ exports.createTanaman = async (req, res) => {
   }
 };
 
-exports.updateTanaman = async (req, res) => {
-  const tanamanId = parseInt(req.params.id);
-  const { namaTanaman, deskripsi } = req.body;
+exports.updateSpesies = async (req, res) => {
+  const spesiesId = parseInt(req.params.id);
+  const { namaSpesies, deskripsi } = req.body;
   const file = req.file;
   const token = req.headers.authorization?.split(" ")[1];
   const userId = req.userId;
@@ -140,15 +140,15 @@ exports.updateTanaman = async (req, res) => {
   }
 
   try {
-    const existTanaman = await prisma.tanaman.findUnique({
+    const existSpesies = await prisma.budidaya.findUnique({
       where: { id: tanamanId },
     });
 
-    if (!existTanaman) {
-      return res.status(404).json({ message: "Tanaman not found" });
+    if (!existSpesies) {
+      return res.status(404).json({ message: "Spesies tidak ditemukan" });
     }
 
-    let imagePath = existTanaman.gambar;
+    let imagePath = existSpesies.gambar;
 
     if (imagePath) {
       let path = imagePath;
@@ -160,7 +160,7 @@ exports.updateTanaman = async (req, res) => {
         .from("1mage.storage")
         .remove([path]);
 
-      console.log("Gambar barang lama berhasil dihapus");
+      console.log("Gambar spesies lama berhasil dihapus");
 
       if (deleteError) {
         console.error(
@@ -168,7 +168,7 @@ exports.updateTanaman = async (req, res) => {
           deleteError.message
         );
         return res.status(401).json({
-          message: "Gagal menghapus gambar barang lama dari storage",
+          message: "Gagal menghapus gambar spesies lama dari storage",
           error: deleteError,
         });
       }
@@ -191,14 +191,14 @@ exports.updateTanaman = async (req, res) => {
 
     const updateData = {};
 
-    if (namaTanaman !== undefined && namaTanaman !== "")
-      updateData.namaTanaman = namaTanaman;
+    if (namaSpesies !== undefined && namaSpesies !== "")
+      updateData.namaSpesies = namaSpesies;
     if (deskripsi !== undefined && deskripsi !== "")
       updateData.deskripsi = deskripsi;
     if (file) updateData.gambar = imagePath;
 
-    await prisma.tanaman.update({
-      where: { id: tanamanId },
+    await prisma.budidaya.update({
+      where: { id: spesiesId },
       data: {
         ...updateData,
         user_id: userId,
@@ -209,7 +209,7 @@ exports.updateTanaman = async (req, res) => {
     if (file) {
       imageUrl = `${process.env.STORAGE_URL}${updateData.gambar}`;
     } else {
-      imageUrl = `${process.env.STORAGE_URL}${existTanaman.gambar}`;
+      imageUrl = `${process.env.STORAGE_URL}${existSpesies.gambar}`;
     }
 
     res.status(200).json({
@@ -225,8 +225,8 @@ exports.updateTanaman = async (req, res) => {
   }
 };
 
-exports.deleteTanaman = async (req, res) => {
-  const tanamanId = parseInt(req.params.id);
+exports.deleteSpesies = async (req, res) => {
+  const spesiesId = parseInt(req.params.id);
   const token = req.headers.authorization?.split(" ")[1];
   const userId = req.userId;
   const supabaseUser = createClient(
@@ -242,16 +242,16 @@ exports.deleteTanaman = async (req, res) => {
   );
 
   try {
-    const tanaman = await prisma.tanaman.findUnique({
-      where: { id: tanamanId },
+    const spesies = await prisma.budidaya.findUnique({
+      where: { id: spesiesId },
     });
 
-    if (!tanaman) {
+    if (!spesies) {
       return res.status(404).json({ message: "Tanaman tidak ditemukan" });
     }
 
-    if (tanaman.gambar) {
-      let path = tanaman.gambar;
+    if (spesies.gambar) {
+      let path = spesies.gambar;
       if (path.startsWith("/")) {
         path = path.slice(1);
       }
@@ -274,8 +274,8 @@ exports.deleteTanaman = async (req, res) => {
       }
     }
 
-    await prisma.tanaman.delete({
-      where: { id: tanaman.id },
+    await prisma.budidaya.delete({
+      where: { id: spesies.id },
     });
 
     res.status(200).json({ message: "Tanaman berhasil dihapus" });

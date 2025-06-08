@@ -34,9 +34,9 @@ model product {
   timeAdded DateTime
 }
 
-model tanaman {
+model budidaya {
   id Int @id @default(autoincrement())
-  namaTanaman String
+  namaSpesies String
   deskripsi String?
   gambar String?
   user_id String? @db.Uuid
