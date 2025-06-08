@@ -12,7 +12,13 @@ exports.getProduct = async (req, res) => {
     }
 
     const formattedData = data.map((item) => ({
-      ...item,
+      id: item.id,
+      namaProduk: item.namaProduk,
+      harga: item.harga,
+      deskripsi: item.deskripsi,
+      linkShoppe: item.linkShoppe,
+      linkTokopedia: item.linkTokopedia,
+      timeAdded: item.timeAdded,
       urlGambar: `${process.env.STORAGE_URL}${item.gambar}`,
     }));
 

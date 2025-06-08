@@ -13,7 +13,10 @@ exports.getSpesies = async (req, res) => {
     }
 
     const formattedData = data.map((item) => ({
-      ...item,
+      id: item.id,
+      namaSpesies: item.namaSpesies,
+      deskripsi: item.deskripsi,
+      timeAdded: item.timeAdded,
       urlGambar: `${process.env.STORAGE_URL}${item.gambar}`,
     }));
 
