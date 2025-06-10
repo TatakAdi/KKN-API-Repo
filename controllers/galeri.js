@@ -16,6 +16,7 @@ exports.getGaleri = async (req, res) => {
     }
 
     const formattedData = data.map((item) => ({
+      id: item.id,
       altText: item.altText,
       timeAdded: item.timeAdded,
       urlGambar: `${process.env.STORAGE_URL}${item.gambar}`,
