@@ -152,10 +152,6 @@ exports.updateGaleri = async (req, res) => {
     return res.status(401).json({ message: "Unauthorized - user ID missing" });
   }
 
-  if (!file) {
-    return res.status(400).json({ message: "No image uploaded" });
-  }
-
   try {
     const existGaleri = await prisma.galeri.findUnique({
       where: { id: galeriId },
@@ -185,16 +181,18 @@ exports.updateGaleri = async (req, res) => {
       }
     }
 
-    const fileName = `${Date.now()}-${file.originalname}`;
-    const filePath = `/galeri/${fileName}`;
+    if (file) {
+      const fileName = `${Date.now()}-${file.originalname}`;
+      const filePath = `/galeri/${fileName}`;
 
-    const { error: uploadError } = await supabaseUser.storage
-      .from("1mage.storage")
-      .upload(filePath, file.buffer, {
-        contentType: file.mimetype,
-      });
+      const { error: uploadError } = await supabaseUser.storage
+        .from("1mage.storage")
+        .upload(filePath, file.buffer, {
+          contentType: file.mimetype,
+        });
 
-    if (uploadError) throw uploadError;
+      if (uploadError) throw uploadError;
+    }
 
     const updateData = {};
 
